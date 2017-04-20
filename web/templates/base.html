@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <title>CS Flash Cards</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel=stylesheet type=text/css href="/static/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/highlight-theme-github.css" />
+    <script src="/static/highlight.pack.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+
+                <br/>
+                <nav class="navbar navbar-default">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="/index">CS Flash Cards</a>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            
+                                <li><a href="/login">log in</a></li>
+                            
+                                <li><a href="/cards">cards</a></li>
+                                <li><a href="/general">general</a></li>
+                                <li><a href="/code">code</a></li>
+                                <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                                <li><a href="/logout">log out</a></li>
+                            
+                        </ul>
+                    </div>
+                </nav>
+                
+                {% for message in flashes %}
+                    <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% endfor %}
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://use.fontawesome.com/8cea844162.js"></script>
+    <script src="/static/fastclick.min.js"></script>
+    <script src="/static/general.js"></script>
+</body>
+</html>
+{{end}}

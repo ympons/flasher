@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block body %}
+
+    <div class="well editPanel">
+        <h2>Add a Card</h2>
+        <form action="/add_card" method="post" class="cardForm">
+            <div class="form-group">
+                <label for="general" class="toggleButton btn btn-default btn-lg">General &nbsp;
+                    <input type="radio" name="type" value="1" id="general"/>
+                </label>
+                <label for="code" class="toggleButton btn btn-default btn-lg">Code &nbsp;
+                    <input type="radio" name="type" value="2" id="code"/>
+                </label>
+            </div>
+            <div class="form-group fieldFront">
+                <label for="front">Front of Card</label>
+                <input type="text" name="front" id="front" class="form-control">
+            </div>
+            <div class="form-group fieldBack">
+                <label for="back">Back of Card</label>
+                <textarea name="back"
+                          class="form-control"
+                          id="back"
+                          placeholder="back of card"
+                          rows="12"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="saveButton btn btn-lg btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="page-header">
+        <h2>{{ cards|length }} Card{% if !(cards|length_is:1) %}s{% endif %}</h2>
+    </div>
+    <div class="btn-group btn-group-md" role="group" aria-label="filters">
+        <a href="/filter_cards/all" class="btn btn-{% if filter_name == "all" %}primary{% else %}default{% endif %}">All</a>
+        <a href="/filter_cards/general" class="btn btn-{% if filter_name == "general" %}primary{% else %}default{% endif %}">General</a>
+        <a href="/filter_cards/code" class="btn btn-{% if filter_name == "code" %}primary{% else %}default{% endif %}">Code</a>
+        <a href="/filter_cards/known" class="btn btn-{% if filter_name == "known" %}primary{% else %}default{% endif %}">Known</a>
+        <a href="/filter_cards/unknown" class="btn btn-{% if filter_name == "unknown" %}primary{% else %}default{% endif %}">Unknown</a>
+    </div>
+
+    <br />
+    <br />
+
+    <table class="table table-bordered">
+		{% if !(cards|length_is:0) %}
+        {% for card in cards %}
+            <tr>
+                <td>
+                    <a href="/edit/{{ card.ID }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                </td>
+                <td class="cardContent">
+                    <h4>
+                        {{ card.Front }}
+                    </h4>
+                </td>
+            </tr>
+		{% endfor %}			
+        {% else %}
+            <tr>
+                <td>
+                    <em>No cards to show.</em>
+                </td>
+            </tr>
+        {% endif %}
+    </table>
+
+{% endblock %}

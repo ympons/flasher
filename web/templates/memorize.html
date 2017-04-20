@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block body %}
+
+    <div class="row">
+        <div class="col-xs-12 text-center">
+            <div class="btn-group btn-group-lg" role="group" aria-label="card type">
+                <a href="/general" class="btn btn-{% if card_type == "general" %}primary{% else %}default{% endif %}">General</a>
+                <a href="/code" class="btn btn-{% if card_type == "code" %}primary{% else %}default{% endif %}">Code</a>
+            </div>
+        </div>
+    </div>
+
+    <hr/>
+
+    <div class="row memorizePanel">
+        <!--
+        <div class="col-xs-2">
+            <div class="alignContainer">
+                <div class="alignMiddle text-right">
+                    <br/>
+                    <br/>
+                    <a href="wewetw"><i class="fa fa-chevron-left fa-5x"></i></a>
+                </div>
+            </div>
+        </div>
+        -->
+        <div class="col-xs-8 col-xs-offset-2">
+            <div class="panel panel-default cardFront">
+                <div class="panel-body">
+                    <div class="alignContainer">
+                        <div class="alignMiddle frontText">
+                            <h3 class="text-center">{{ card.Front }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-primary cardBack">
+                <div class="panel-body">
+                    <div class="alignContainer">
+                        <div class="alignMiddle frontText">
+                            {% if card.Typ == 1 %}
+                                {% if short_answer %}
+                                    <div class="text-center largerText">
+                                {% endif %}
+                                    {{ card.Back|replace("\n", "<br />")|safe }}
+                                {% if short_answer %}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <pre><code>{{ card.Back|safe }}</code></pre>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--
+        <div class="col-xs-2">
+            <div class="alignContainer">
+                <div class="alignMiddle text-left">
+                    <br/>
+                    <br/>
+                    <a href="ergergerge"><i class="fa fa-chevron-right fa-5x"></i></a>
+                </div>
+            </div>
+        </div>
+        -->
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 text-center">
+            <a href="javascript:" class="btn btn-primary btn-lg flipCard">
+                <i class="fa fa-exchange"></i>
+                Flip Card
+            </a>
+            &nbsp;
+            &nbsp;
+            <a href="#" class="btn btn-success btn-lg">
+                <i class="fa fa-check"></i>
+                I Know It
+            </a>
+            &nbsp;
+            &nbsp;
+            <a href="/{{ card_type }}" class="btn btn-primary btn-lg">
+                Next Card
+                <i class="fa fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 text-center">
+            <br />
+            <br />
+            <br />
+            <a href="/{{ card_type }}?card_id={{ card.ID }}" class="btn btn-default btn-sm">
+                <i class="fa fa-bookmark"></i>
+                bookmark this card (#{{ card.ID }})
+            </a>
+
+        </div>
+    </div>
+
+{% endblock %}
