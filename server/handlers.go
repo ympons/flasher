@@ -180,6 +180,15 @@ func (s *Server) memorize(w http.ResponseWriter, req *http.Request, cardType, ca
 
 func (s *Server) MarkKnown(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
+
+	if _, err := s.db.Exec("UPDATE cards SET known = 1 WHERE id = ? and type = ?",
+		vars["id"],
+		vars["type"],
+	); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	s.flash(w, req, infoAlert, "Card marked as known.")
 	s.memorize(w, req, vars["type"], vars["id"])
 }
 

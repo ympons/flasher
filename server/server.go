@@ -41,7 +41,7 @@ func New(basePath, secretKey, credentials string, db *db.DB) *Server {
 	s.router.HandleFunc("/edit/{id:[0-9]+}", s.admin(s.EditCard)).Methods("GET")
 	s.router.HandleFunc("/update", s.admin(s.UpdateCard)).Methods("POST")
 	s.router.HandleFunc("/delete/{id:[0-9]+}", s.admin(s.DeleteCard)).Methods("GET")
-	s.router.HandleFunc("/mark-known/{id:[0-9]+}/{type:general|code}", s.admin(s.MarkKnown)).Methods("GET")
+	s.router.HandleFunc("/mark_known/{id:[0-9]+}/{type:general|code}", s.admin(s.MarkKnown)).Methods("GET")
 
 	s.router.PathPrefix("/static/").Handler(http.FileServer(http.Dir(basePath)))
 	gob.Register(&flash{})
