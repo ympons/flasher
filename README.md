@@ -1,6 +1,4 @@
 # flasher
-Small flash-cards website for coding and practice of computer science concepts
-
 A golang implementation of the flash cards site [jwasham/computer-science-flash-cards](https://github.com/jwasham/computer-science-flash-cards) for practicing computer science concepts.
 
 ## Built with:
