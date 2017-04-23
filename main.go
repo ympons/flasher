@@ -15,6 +15,7 @@ func main() {
 	basePath := getenv("BASE_PATH", "web")
 	secretKey := getenv("SECRET_KEY_BASE", "8c18346e742aec88ddf68fc9f51e5e")
 	dbSource := getenv("DATABASE_URL", "./db/cards-jwasham.db")
+	credentials := getenv("CREDENTIALS", "admin:admin")
 
 	dbInstance, err := db.Open("sqlite3", dbSource)
 	if err != nil {
@@ -28,7 +29,7 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
 
-	srv := server.New(basePath, secretKey, dbInstance)
+	srv := server.New(basePath, secretKey, credentials, dbInstance)
 
 	// Block until a signal is received
 	go func() {

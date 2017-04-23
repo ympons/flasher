@@ -5,10 +5,12 @@ import (
 	"path"
 
 	"github.com/flosch/pongo2"
+	"github.com/gorilla/context"
 )
 
 const (
 	sessionName = "__session"
+	loginStatus = "__logged_in"
 
 	// Bootstrap alert
 	infoAlert    = "info"
@@ -41,6 +43,11 @@ func (s *Server) render(w http.ResponseWriter, req *http.Request, templateName s
 	}
 
 	ctx["flashes"] = s.flashes(w, req)
+	if v := context.Get(req, loginStatus); v != nil {
+		ctx["logged_in"] = v.(bool)
+	} else {
+		ctx["logged_in"] = false
+	}
 	b, err := tmpl.ExecuteBytes(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -51,9 +58,29 @@ func (s *Server) render(w http.ResponseWriter, req *http.Request, templateName s
 	w.Write(b)
 }
 
+func (s *Server) auth(w http.ResponseWriter, req *http.Request, status bool) {
+	session, _ := s.sessions.Get(req, sessionName)
+	defer session.Save(req, w)
+	session.Values[loginStatus] = status
+}
+
 func (s *Server) admin(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		// TODO: check credentials
+		session, _ := s.sessions.Get(req, sessionName)
+
+		isAuth := false
+		if v, ok := session.Values[loginStatus]; ok {
+			auth, ok := v.(bool)
+			if ok && auth {
+				isAuth = true
+			}
+		}
+
+		context.Set(req, loginStatus, isAuth)
+		if !isAuth {
+			http.Redirect(w, req, "/login", http.StatusFound)
+			return
+		}
 
 		if req.Method == http.MethodPost {
 			if err := req.ParseForm(); err != nil {

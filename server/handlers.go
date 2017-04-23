@@ -59,6 +59,7 @@ func (s *Server) FilterCards(w http.ResponseWriter, req *http.Request) {
 
 	if query == "" {
 		http.Redirect(w, req, "/cards", http.StatusFound)
+		return
 	}
 
 	cards := []Card{}
@@ -155,8 +156,7 @@ func (s *Server) memorize(w http.ResponseWriter, req *http.Request, cardType, ca
 
 	var card Card
 	if cardId != "" {
-		s.db.Get(&card, "SELECT id, type, front, back, known FROM cards WHERE id = ? LIMIT 1", cardId)
-
+		s.db.Get(&card, "SELECT id, type, front, back, known FROM cards WHERE id = ? and type = ? LIMIT 1", cardId, typ)
 	} else {
 		s.db.Get(&card, "SELECT id, type, front, back, known FROM cards WHERE type = ? and known = 0 ORDER BY RANDOM() LIMIT 1", typ)
 	}
@@ -176,4 +176,33 @@ func (s *Server) memorize(w http.ResponseWriter, req *http.Request, cardType, ca
 		"card_type":    cardType,
 		"short_answer": shortAnswer,
 	})
+}
+
+func (s *Server) MarkKnown(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	s.memorize(w, req, vars["type"], vars["id"])
+}
+
+func (s *Server) Login(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodPost {
+		req.ParseForm()
+		var (
+			username = req.Form.Get("username")
+			password = req.Form.Get("password")
+		)
+		if s.credentials != username+":"+password {
+			s.flash(w, req, dangerAlert, "Invalid username/password")
+		} else {
+			s.auth(w, req, true)
+			http.Redirect(w, req, "/cards", http.StatusFound)
+			return
+		}
+	}
+	s.render(w, req, "login.html", pongo2.Context{})
+}
+
+func (s *Server) Logout(w http.ResponseWriter, req *http.Request) {
+	s.auth(w, req, false)
+	s.flash(w, req, dangerAlert, "You've logged out")
+	http.Redirect(w, req, "/", http.StatusFound)
 }

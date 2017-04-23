@@ -19,15 +19,15 @@
                         <a class="navbar-brand" href="/">CS Flash Cards</a>
 
                         <ul class="nav navbar-nav navbar-right">
-                            
+                            {% if logged_in == false %}
                                 <li><a href="/login">log in</a></li>
-                            
+                            {% else %}
                                 <li><a href="/cards">cards</a></li>
                                 <li><a href="/general">general</a></li>
                                 <li><a href="/code">code</a></li>
                                 <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
                                 <li><a href="/logout">log out</a></li>
-                            
+                            {% endif %}
                         </ul>
                     </div>
                 </nav>
