@@ -7,14 +7,21 @@ import (
 	"github.com/flosch/pongo2"
 )
 
-const sessionName = "__session"
+const (
+	sessionName = "__session"
+
+	// Bootstrap alert
+	infoAlert    = "info"
+	warningAlert = "warning"
+	dangerAlert  = "danger"
+)
 
 type flash struct {
 	Type string
 	Body string
 }
 
-func (s *Server) addFlash(w http.ResponseWriter, req *http.Request, flashType, body string) {
+func (s *Server) flash(w http.ResponseWriter, req *http.Request, flashType, body string) {
 	session, _ := s.sessions.Get(req, sessionName)
 	defer session.Save(req, w)
 	session.AddFlash(&flash{Type: flashType, Body: body})
@@ -47,6 +54,13 @@ func (s *Server) render(w http.ResponseWriter, req *http.Request, templateName s
 func (s *Server) admin(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		// TODO: check credentials
+
+		if req.Method == http.MethodPost {
+			if err := req.ParseForm(); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
 		next(w, req)
 	}
 }

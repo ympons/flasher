@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
@@ -10,7 +11,7 @@ import (
 
 type Card struct {
 	ID    int    `json:"id"`
-	Typ   int    `json:"type" db:"type"`
+	Type  uint8  `json:"type" db:"type"`
 	Front string `json:"front"`
 	Back  string `json:"back"`
 	Known bool   `json:"known"`
@@ -65,9 +66,24 @@ func (s Server) FilterCards(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (s Server) AddCard(w http.ResponseWriter, req *http.Request) {
-	// TODO
-	fmt.Fprintf(w, "%s", "Hello")
+func (s Server) CreateCard(w http.ResponseWriter, req *http.Request) {
+	var (
+		typ, _ = strconv.Atoi(req.Form.Get("type"))
+		front  = req.Form.Get("front")
+		back   = req.Form.Get("back")
+	)
+
+	if _, err := s.db.Exec("INSERT INTO cards (type, front, back) VALUES (?, ?, ?)",
+		typ,
+		front,
+		back,
+	); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	s.flash(w, req, infoAlert, "New card was successfully added.")
+	http.Redirect(w, req, "/cards", http.StatusFound)
 }
 
 func (s Server) EditCard(w http.ResponseWriter, req *http.Request) {
@@ -83,4 +99,25 @@ func (s Server) EditCard(w http.ResponseWriter, req *http.Request) {
 	s.render(w, req, "edit.html", pongo2.Context{
 		"card": card,
 	})
+}
+
+func (s Server) UpdateCard(w http.ResponseWriter, req *http.Request) {
+	var known = false
+	if req.Form.Get("known") == "1" {
+		known = true
+	}
+
+	if _, err := s.db.Exec("UPDATE cards SET type = ?, front = ?, back = ?, known = ? WHERE id = ?",
+		req.Form.Get("type"),
+		req.Form.Get("front"),
+		req.Form.Get("back"),
+		known,
+		req.Form.Get("card_id"),
+	); err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	s.flash(w, req, infoAlert, "Card was successfully updated.")
+	http.Redirect(w, req, "/cards", http.StatusFound)
 }

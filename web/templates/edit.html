@@ -2,15 +2,15 @@
 {% block body %}
     <div class="well">
         <h2>Edit Card #{{ card.ID }}</h2>
-        <form action="/edit_card" method="post" class="cardForm">
+        <form action="/update" method="POST" class="cardForm">
 
             <div class="form-group">
                 <label for="general" class="btn btn-default btn-lg">General &nbsp;
                     <input type="radio" name="type" value="1"
-                           id="general" {% if card.Typ == 1 %}checked{% endif %} />
+                           id="general" {% if card.Type == 1 %}checked{% endif %} />
                 </label>
                 <label for="code" class="btn btn-default btn-lg">Code &nbsp;
-                    <input type="radio" name="type" value="2" id="code" {% if card.Typ == 2 %}checked{% endif %} />
+                    <input type="radio" name="type" value="2" id="code" {% if card.Type == 2 %}checked{% endif %} />
                 </label>
             </div>
             <div class="form-group">
@@ -30,7 +30,7 @@
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" name="known"
-                               value="1" {% if card.Known == 1 %}checked{% endif %} /> Known
+                               value="1" {% if card.Known == true %}checked{% endif %} /> Known
                         </label>
                     </div>
                 </div>

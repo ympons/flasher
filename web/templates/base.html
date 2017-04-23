@@ -32,8 +32,8 @@
                     </div>
                 </nav>
                 
-                {% for message in flashes %}
-                    <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% for flash in flashes %}
+                    <div class="alert alert-{{ flash.Type }}" role="alert">{{ flash.Body|capfirst }}</div>
                 {% endfor %}
                 {% block body %}{% endblock %}
             </div>

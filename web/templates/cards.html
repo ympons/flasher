@@ -3,7 +3,7 @@
 
     <div class="well editPanel">
         <h2>Add a Card</h2>
-        <form action="/add_card" method="post" class="cardForm">
+        <form action="/create" method="POST" class="cardForm">
             <div class="form-group">
                 <label for="general" class="toggleButton btn btn-default btn-lg">General &nbsp;
                     <input type="radio" name="type" value="1" id="general"/>
@@ -45,7 +45,7 @@
     <br />
 
     <table class="table table-bordered">
-		{% if !(cards|length_is:0) %}
+		{% if cards|length > 0 %}
         {% for card in cards %}
             <tr>
                 <td>

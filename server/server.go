@@ -27,8 +27,9 @@ func New(basePath, secretKey string, db *db.DB) *Server {
 	s.router.HandleFunc("/general", s.admin(s.Cards)).Methods("GET")
 	s.router.HandleFunc("/cards", s.admin(s.Cards)).Methods("GET")
 	s.router.HandleFunc("/filter_cards/{name}", s.admin(s.FilterCards)).Methods("GET")
-	s.router.HandleFunc("/add", s.admin(s.AddCard)).Methods("POST")
+	s.router.HandleFunc("/create", s.admin(s.CreateCard)).Methods("POST")
 	s.router.HandleFunc("/edit/{id:[0-9]+}", s.admin(s.EditCard)).Methods("GET")
+	s.router.HandleFunc("/update", s.admin(s.UpdateCard)).Methods("POST")
 
 	s.router.PathPrefix("/static/").Handler(http.FileServer(http.Dir("./web/")))
 
