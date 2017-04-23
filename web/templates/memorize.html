@@ -38,11 +38,11 @@
                 <div class="panel-body">
                     <div class="alignContainer">
                         <div class="alignMiddle frontText">
-                            {% if card.Typ == 1 %}
+                            {% if card.Type == 1 %}
                                 {% if short_answer %}
                                     <div class="text-center largerText">
                                 {% endif %}
-                                    {{ card.Back|replace("\n", "<br />")|safe }}
+                                    {{ card.Back|safe }}
                                 {% if short_answer %}
                                     </div>
                                 {% endif %}
@@ -92,7 +92,7 @@
             <br />
             <br />
             <br />
-            <a href="/{{ card_type }}?card_id={{ card.ID }}" class="btn btn-default btn-sm">
+            <a href="/{{ card_type }}/{{ card.ID }}" class="btn btn-default btn-sm">
                 <i class="fa fa-bookmark"></i>
                 bookmark this card (#{{ card.ID }})
             </a>

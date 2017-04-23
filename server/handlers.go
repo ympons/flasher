@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -17,16 +16,25 @@ type Card struct {
 	Known bool   `json:"known"`
 }
 
-func (s Server) Index(w http.ResponseWriter, req *http.Request) {
-	// TODO
-	fmt.Fprintf(w, "%s", "Hello")
+func (s *Server) Index(w http.ResponseWriter, req *http.Request) {
+	s.General(w, req)
+}
+
+func (s *Server) Code(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	s.memorize(w, req, "code", vars["id"])
+}
+
+func (s *Server) General(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	s.memorize(w, req, "general", vars["id"])
 }
 
 func (s *Server) Cards(w http.ResponseWriter, req *http.Request) {
 	cards := []Card{}
 	err := s.db.Select(&cards, "SELECT id, type, front, back, known FROM cards ORDER BY id DESC")
 	if err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -36,7 +44,7 @@ func (s *Server) Cards(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (s Server) FilterCards(w http.ResponseWriter, req *http.Request) {
+func (s *Server) FilterCards(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	filterName := vars["name"]
 
@@ -56,7 +64,7 @@ func (s Server) FilterCards(w http.ResponseWriter, req *http.Request) {
 	cards := []Card{}
 	err := s.db.Select(&cards, "SELECT id, type, front, back, known FROM cards "+query+" ORDER BY id DESC")
 	if err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -66,7 +74,7 @@ func (s Server) FilterCards(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (s Server) CreateCard(w http.ResponseWriter, req *http.Request) {
+func (s *Server) CreateCard(w http.ResponseWriter, req *http.Request) {
 	var (
 		typ, _ = strconv.Atoi(req.Form.Get("type"))
 		front  = req.Form.Get("front")
@@ -78,7 +86,7 @@ func (s Server) CreateCard(w http.ResponseWriter, req *http.Request) {
 		front,
 		back,
 	); err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -86,13 +94,13 @@ func (s Server) CreateCard(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/cards", http.StatusFound)
 }
 
-func (s Server) EditCard(w http.ResponseWriter, req *http.Request) {
+func (s *Server) EditCard(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	var card Card
 	err := s.db.Get(&card, "SELECT id, type, front, back, known FROM cards WHERE id=$1", vars["id"])
 	if err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -101,7 +109,7 @@ func (s Server) EditCard(w http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func (s Server) UpdateCard(w http.ResponseWriter, req *http.Request) {
+func (s *Server) UpdateCard(w http.ResponseWriter, req *http.Request) {
 	var known = false
 	if req.Form.Get("known") == "1" {
 		known = true
@@ -114,10 +122,58 @@ func (s Server) UpdateCard(w http.ResponseWriter, req *http.Request) {
 		known,
 		req.Form.Get("card_id"),
 	); err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	s.flash(w, req, infoAlert, "Card was successfully updated.")
 	http.Redirect(w, req, "/cards", http.StatusFound)
+}
+
+func (s *Server) DeleteCard(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
+	if _, err := s.db.Exec("DELETE FROM cards WHERE id = $1", vars["id"]); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	s.flash(w, req, infoAlert, "Card was deleted.")
+	http.Redirect(w, req, "/cards", http.StatusFound)
+}
+
+func (s *Server) memorize(w http.ResponseWriter, req *http.Request, cardType, cardId string) {
+	var typ int
+	switch cardType {
+	case "general":
+		typ = 1
+	case "code":
+		typ = 2
+	default:
+		http.Redirect(w, req, "/cards", http.StatusFound)
+		return
+	}
+
+	var card Card
+	if cardId != "" {
+		s.db.Get(&card, "SELECT id, type, front, back, known FROM cards WHERE id = ? LIMIT 1", cardId)
+
+	} else {
+		s.db.Get(&card, "SELECT id, type, front, back, known FROM cards WHERE type = ? and known = 0 ORDER BY RANDOM() LIMIT 1", typ)
+	}
+	if card.ID == 0 {
+		s.flash(w, req, infoAlert, "You've learned all the "+cardType+" cards.")
+		http.Redirect(w, req, "/cards", http.StatusFound)
+		return
+	}
+
+	shortAnswer := false
+	if len(card.Back) < 75 {
+		shortAnswer = true
+	}
+
+	s.render(w, req, "memorize.html", pongo2.Context{
+		"card":         card,
+		"card_type":    cardType,
+		"short_answer": shortAnswer,
+	})
 }
