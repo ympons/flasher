@@ -22,6 +22,7 @@ Make sure you have [Go](http://golang.org/doc/install) installed.
 
 ```sh
 $ go get github.com/ympons/flasher
+$ cd $GOPATH/src/github.com/ympons/flasher
 $ PORT=5800 $GOPATH/bin/flasher
 ```
 
